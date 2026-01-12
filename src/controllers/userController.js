@@ -1,16 +1,29 @@
 const User = require("../models/User");
+const AppError = require("../utils/AppError");
 
-const getUsers = async (req, res) => {
-  const users = await User.find();
-  res.json(users);
+const getUsers = async (req, res, next) => {
+  try {
+    const users = await User.find();
+    res.json({
+      success: true,
+      data: users
+    });
+  } catch (error) {
+    next(new AppError("Failed to fetch users", 500));
+  }
 };
 
-const createUser = async (req, res) => {
-  const { name, email } = req.body;
-
-  const user = await User.create({ name, email });
-
-  res.status(201).json(user);
+const createUser = async (req, res, next) => {
+  try {
+    const { name, email } = req.body;
+    const user = await User.create({ name, email });
+    res.status(201).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    next(new AppError("Failed to create user", 400));
+  }
 };
 
 module.exports = {

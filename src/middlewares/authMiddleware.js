@@ -1,9 +1,9 @@
 const jwt = require("jsonwebtoken");
+const AppError = require("../utils/AppError");
 
 const protect = (req, res, next) => {
   let token;
 
-  // Token is sent in Authorization header
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
@@ -12,15 +12,15 @@ const protect = (req, res, next) => {
   }
 
   if (!token) {
-    return res.status(401).json({ message: "Not authorized, token missing" });
+    return next(new AppError("Not authorized, token missing", 401));
   }
 
   try {
     const decoded = jwt.verify(token, "secretkey");
-    req.user = decoded; // attach user info to request
+    req.user = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({ message: "Not authorized, token invalid" });
+    return next(new AppError("Not authorized, token invalid", 401));
   }
 };
 
